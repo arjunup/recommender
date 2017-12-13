@@ -1,6 +1,7 @@
 package com.brc.priceengine.recommender;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,10 +11,22 @@ public class PriceRecommender {
 	private List<SurveyData> surveyDataList;
 
 	private List<Product> productList;
+	
+	public List<SurveyData> getSurveyDataList() {
+		return surveyDataList;
+	}
 
-	private List<Double> priceRecommenderList;
+	public void setSurveyDataList(List<SurveyData> surveyDataList) {
+		this.surveyDataList = surveyDataList;
+	}
 
-	private List<Double> cleanedCompetitorPriceList;
+	public List<Product> getProductList() {
+		return productList;
+	}
+
+	public void setProductList(List<Product> productList) {
+		this.productList = productList;
+	}
 
 	private double productAvgPrice(Product product) {
 		double priceTotal = 0;
@@ -69,45 +82,64 @@ public class PriceRecommender {
 		return cleanedSurveyDataList;
 	}
 
-	public Map<Double, Integer> getChosenPriceForEachProduct(List<Product> productList, List<SurveyData> surveyDataList) {
+	public List<Double> getChosenPriceForEachProduct(List<Product> productList, List<SurveyData> surveyDataList) {
 		Integer maxCount = -1;
-		Map<Double, Integer> wordCount = new HashMap<Double, Integer>();
+		
+		Collection<Map<Double,Integer>> pricingCountPerProduct = new ArrayList<Map<Double,Integer>>();
+		List<Double> chosenValuesPerProduct = new ArrayList<Double>();
 		for (Product product : productList) {
+			Map<Double, Integer> wordCountMap = new HashMap<Double, Integer>();
 			for (SurveyData surveyData : surveyDataList) {
 				if (product.getName().equals(surveyData.getProductName())) {
-					if (!wordCount.containsKey(surveyData.getPrice())) {
-						wordCount.put(surveyData.getPrice(), 0);
+					if (!wordCountMap.containsKey(surveyData.getPrice())) {
+						wordCountMap.put(surveyData.getPrice(), 0);
 					}
-					int count = wordCount.get(surveyData.getPrice()) + 1;
+					int count = wordCountMap.get(surveyData.getPrice()) + 1;
 					if (count > maxCount) {
 						maxCount = count;
 					}
-					wordCount.put(surveyData.getPrice(), count);
+					wordCountMap.put(surveyData.getPrice(), count);
 				}
 			}
+			pricingCountPerProduct.add(wordCountMap);
 		}
-		return wordCount;
+		
+		for(Map<Double, Integer> map : pricingCountPerProduct) {
+			Double chosenValue = 0.0; Integer chosenValueMaxCount = -1;
+			for(Double price : map.keySet()) {
+				Double currentValue = price;
+				Integer chosenValueCount = map.get(price);
+				
+				if (price != 0 && (chosenValueCount > chosenValueMaxCount || currentValue < chosenValue)) {
+					chosenValue = currentValue;
+					chosenValueMaxCount = chosenValueCount;
+				}
+			}
+			chosenValuesPerProduct.add(chosenValue);
+		}
+		return chosenValuesPerProduct;
 	}
 
-	private double recommendedPriceBasedonChosenPrice() {
-		return 0;
-
+	public List<Double> recommendedPriceForEachProduct(List<Double> chosenValuesPerProduct) {
+		List<Double> recommendedPriceList = new ArrayList<Double>();
+		int index = 0;
+		for(Product product : this.productList) {
+			if(product.getSupply().equals("H") && product.getDemand().equals("H")) {
+				recommendedPriceList.add(chosenValuesPerProduct.get(index));
+			}else if(product.getSupply().equals("L") && product.getDemand().equals("L")) {
+				recommendedPriceList.add(chosenValuesPerProduct.get(index) + (0.1 * chosenValuesPerProduct.get(index)));
+			}else if(product.getSupply().equals("L") && product.getDemand().equals("H")) {
+				recommendedPriceList.add(chosenValuesPerProduct.get(index) + (0.05 * chosenValuesPerProduct.get(index)));
+			}else if(product.getSupply().equals("H") && product.getDemand().equals("L")) {
+				recommendedPriceList.add(chosenValuesPerProduct.get(index) - (0.05 * chosenValuesPerProduct.get(index)));
+			}else {
+				System.out.println("Invalid Supply/Demand parameters for Product Input data");
+			}
+			index++;
+		}
+		return recommendedPriceList;
 	}
 
-	public List<SurveyData> getSurveyDataList() {
-		return surveyDataList;
-	}
-
-	public void setSurveyDataList(List<SurveyData> surveyDataList) {
-		this.surveyDataList = surveyDataList;
-	}
-
-	public List<Product> getProductList() {
-		return productList;
-	}
-
-	public void setProductList(List<Product> productList) {
-		this.productList = productList;
-	}
+	
 
 }

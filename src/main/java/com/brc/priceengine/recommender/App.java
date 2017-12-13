@@ -56,13 +56,21 @@ public class App {
 		
 		List<SurveyData> cleanedSurveyDataList = priceRecommender.getCleanedSurveyData(productAvgPriceMap);
 		
-		System.out.println(cleanedSurveyDataList.get(0).getPrice());
+		/*System.out.println(cleanedSurveyDataList.get(0).getPrice());
 		System.out.println(cleanedSurveyDataList.get(1).getPrice());
-		System.out.println(cleanedSurveyDataList.get(2).getPrice());
+		System.out.println(cleanedSurveyDataList.get(2).getPrice());*/
 		
-		Map<Double, Integer> wordCount = priceRecommender.getChosenPriceForEachProduct(productList, cleanedSurveyDataList);
-		System.out.println("wordCount = " + wordCount.get(11.0));
+		List<Double> chosenPriceList = priceRecommender.getChosenPriceForEachProduct(productList, cleanedSurveyDataList);
 		
-		
+		/*System.out.println("chosenPriceList = " + chosenPriceList.get(0));
+		System.out.println("chosenPriceList = " + chosenPriceList.get(1));
+		*/
+		List<Double> recommendedPriceList = priceRecommender.recommendedPriceForEachProduct(chosenPriceList);
+		char c = 'A';
+		for(Double recommendedPrice : recommendedPriceList) {
+			
+			System.out.println(c + " " + recommendedPrice);
+			c++;			
+		}
 	}
 }
