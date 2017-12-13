@@ -34,11 +34,9 @@ public class PriceRecommender {
 		int i = 0;
 		for (SurveyData surveyData : surveyDataList) {
 			if (product.getName().equals(surveyData.getProductName())) {
-				// System.out.println("priceTotal = " + priceTotal);
 				priceTotal += surveyData.getPrice();
 				i++;
 				avgPrice = priceTotal / i;
-				// System.out.println("avgPrice = " + avgPrice);
 			}
 		}
 
@@ -56,8 +54,6 @@ public class PriceRecommender {
 	}
 
 	private boolean isDataError(double surveyDataPrice, double avgPrice) {
-		// System.out.println("surveyDataPrice = " + surveyDataPrice);
-		// System.out.println("avgPrice * 0.5 " + avgPrice * 0.5);
 		return (surveyDataPrice > (avgPrice + avgPrice * 0.5)) ? true : false;
 	}
 
@@ -139,7 +135,4 @@ public class PriceRecommender {
 		}
 		return recommendedPriceList;
 	}
-
-	
-
 }

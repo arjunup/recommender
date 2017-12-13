@@ -13,64 +13,57 @@ import java.util.Map;
  */
 public class App {
 	public static void main(String[] args) throws IOException {
-		System.out.println("Enter number of products followed by each Product's supply and demand parameters");
+		System.out.println("Enter number of products followed by each product name and the product's supply and demand parameters and then enter the Surveyed data "
+				+ "that contains Product code, Competitor and Price.");
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		int numOfProducts = Integer.parseInt(br.readLine());
 		List<Product> productList = new ArrayList<Product>();
-		for (int i = 0; i < numOfProducts; i++) {
-			Product product = new Product();
-			String value = br.readLine();
-			String[] prodDescArray = value.split(" ");
-
-			product.setName(prodDescArray[0]);
-			product.setSupply(prodDescArray[1]);
-			product.setDemand(prodDescArray[2]);
-			productList.add(product);
-
-		}
-
-		int numofSurveyedPrices = Integer.parseInt(br.readLine());
 		List<SurveyData> surveyDataList = new ArrayList<SurveyData>();
 
-		for (int i = 0; i < numofSurveyedPrices; i++) {
-			SurveyData surveyData = new SurveyData();
-			String value = br.readLine();
-			String[] competitorInfoArray = value.split(" ");
+		try {
+			int numOfProducts = Integer.parseInt(br.readLine());
 
-			surveyData.setProductName(competitorInfoArray[0]);
-			surveyData.setCompetitorName(competitorInfoArray[1]);
-			surveyData.setPrice(Double.parseDouble(competitorInfoArray[2]));
-			surveyDataList.add(surveyData);
+			for (int i = 0; i < numOfProducts; i++) {
+				Product product = new Product();
+				String value = br.readLine();
+				String[] prodDescArray = value.split(" ");
 
+				product.setName(prodDescArray[0]);
+				product.setSupply(prodDescArray[1]);
+				product.setDemand(prodDescArray[2]);
+				productList.add(product);
+
+			}
+
+			int numofSurveyedPrices = Integer.parseInt(br.readLine());
+
+			for (int i = 0; i < numofSurveyedPrices; i++) {
+				SurveyData surveyData = new SurveyData();
+				String value = br.readLine();
+				String[] competitorInfoArray = value.split(" ");
+
+				surveyData.setProductName(competitorInfoArray[0]);
+				surveyData.setCompetitorName(competitorInfoArray[1]);
+				surveyData.setPrice(Double.parseDouble(competitorInfoArray[2]));
+				surveyDataList.add(surveyData);
+
+			}
+
+		} catch (Exception e) {
+			System.out.println("Invalid Input, please enter a valid number for both ");
 		}
 
-		/*System.out.println(surveyDataList.get(0).getProduct());
-		System.out.println(surveyDataList.get(0).getPrice());
-		System.out.println(surveyDataList.get(0).getCompetitorName());*/
-		
 		PriceRecommender priceRecommender = new PriceRecommender();
 		priceRecommender.setSurveyDataList(surveyDataList);
 		priceRecommender.setProductList(productList);
-		Map<String,Double> productAvgPriceMap = priceRecommender.getAvgPriceList();
-	//	System.out.println("AvgPrice = " + avgPrice.get(0) + " " + avgPrice.get(1));
-		
+		Map<String, Double> productAvgPriceMap = priceRecommender.getAvgPriceList();
 		List<SurveyData> cleanedSurveyDataList = priceRecommender.getCleanedSurveyData(productAvgPriceMap);
-		
-		/*System.out.println(cleanedSurveyDataList.get(0).getPrice());
-		System.out.println(cleanedSurveyDataList.get(1).getPrice());
-		System.out.println(cleanedSurveyDataList.get(2).getPrice());*/
-		
-		List<Double> chosenPriceList = priceRecommender.getChosenPriceForEachProduct(productList, cleanedSurveyDataList);
-		
-		/*System.out.println("chosenPriceList = " + chosenPriceList.get(0));
-		System.out.println("chosenPriceList = " + chosenPriceList.get(1));
-		*/
+		List<Double> chosenPriceList = priceRecommender.getChosenPriceForEachProduct(productList,
+				cleanedSurveyDataList);
 		List<Double> recommendedPriceList = priceRecommender.recommendedPriceForEachProduct(chosenPriceList);
 		char c = 'A';
-		for(Double recommendedPrice : recommendedPriceList) {
-			
+		for (Double recommendedPrice : recommendedPriceList) {
 			System.out.println(c + " " + recommendedPrice);
-			c++;			
+			c++;
 		}
 	}
 }
