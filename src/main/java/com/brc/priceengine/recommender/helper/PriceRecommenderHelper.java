@@ -20,14 +20,14 @@ public class PriceRecommenderHelper {
 		return productAvgMap;
 	}
 	
-	public List<SurveyData> getCleanedSurveyData(Map<String, Double> avgPriceList, List<SurveyData> surveyDataList) {
+	public List<SurveyData> getCleanedSurveyData(Map<String, Double> productAvgMap, List<SurveyData> surveyDataList) {
 		List<SurveyData> cleanedSurveyDataList = new ArrayList<SurveyData>();
-		for (String key : avgPriceList.keySet()) {
+		for (String key : productAvgMap.keySet()) {
 			for (SurveyData surveyData : surveyDataList) {
 				if (surveyData.getProductName().equals(key)) {
-					if (isDataError(surveyData.getPrice(), avgPriceList.get(key))) {
+					if (isDataError(surveyData.getPrice(), productAvgMap.get(key))) {
 						surveyData.setPrice(0);
-					} else if (isPromoOffer(surveyData.getPrice(), avgPriceList.get(key))) {
+					} else if (isPromoOffer(surveyData.getPrice(), productAvgMap.get(key))) {
 						surveyData.setPrice(0);
 					}
 					cleanedSurveyDataList.add(surveyData);

@@ -12,27 +12,8 @@ import com.brc.priceengine.recommender.model.SurveyData;
 public class PriceRecommender {
 
 	public List<Double> getChosenPriceForEachProduct(List<Product> productList, List<SurveyData> surveyDataList) {
-		Integer maxCount = -1;
-		
-		Collection<Map<Double,Integer>> pricingCountPerProduct = new ArrayList<Map<Double,Integer>>();
-		List<Double> chosenValuesPerProduct = new ArrayList<Double>();
-		for (Product product : productList) {
-			Map<Double, Integer> wordCountMap = new HashMap<Double, Integer>();
-			for (SurveyData surveyData : surveyDataList) {
-				if (product.getName().equals(surveyData.getProductName())) {
-					if (!wordCountMap.containsKey(surveyData.getPrice())) {
-						wordCountMap.put(surveyData.getPrice(), 0);
-					}
-					int count = wordCountMap.get(surveyData.getPrice()) + 1;
-					if (count > maxCount) {
-						maxCount = count;
-					}
-					wordCountMap.put(surveyData.getPrice(), count);
-				}
-			}
-			pricingCountPerProduct.add(wordCountMap);
-		}
-		
+		List<Double> chosenValuesPerProductList = new ArrayList<Double>();
+		Collection<Map<Double,Integer>> pricingCountPerProduct = getPricingCountPerProdMap(productList, surveyDataList);
 		for(Map<Double, Integer> map : pricingCountPerProduct) {
 			Double chosenValue = 0.0; Integer chosenValueMaxCount = -1;
 			for(Double price : map.keySet()) {
@@ -45,9 +26,9 @@ public class PriceRecommender {
 					chosenValueMaxCount = chosenValueCount;
 				}
 			}
-			chosenValuesPerProduct.add(chosenValue);
+			chosenValuesPerProductList.add(chosenValue);
 		}
-		return chosenValuesPerProduct;
+		return chosenValuesPerProductList;
 	}
 
 	public List<Double> recommendedPriceForEachProduct(List<Double> chosenValuesPerProduct, List<Product> productList) {
@@ -69,4 +50,45 @@ public class PriceRecommender {
 		}
 		return recommendedPriceList;
 	}
+	
+	public void reportOutput(List<Double> recommendedPriceList) {
+		char c = 'A';
+		Double zero = 0.0;
+		for (Double recommendedPrice : recommendedPriceList) {
+			
+			if(zero.equals(recommendedPrice)) {
+				System.out.println(c + " " + "Invalid Survey Data");
+			}else if(recommendedPrice == null ){
+				System.out.println(c + " " + "Invalid Supply/Demand parameters for Product Input data");
+			}else {
+				System.out.println(c + " " + recommendedPrice);
+			}			
+			c++;
+		}
+	}
+	
+	private Collection<Map<Double,Integer>> getPricingCountPerProdMap(List<Product> productList, List<SurveyData> surveyDataList) {
+		Integer maxCount = -1;
+		
+		Collection<Map<Double,Integer>> pricingCountPerProduct = new ArrayList<Map<Double,Integer>>();
+		
+		for (Product product : productList) {
+			Map<Double, Integer> wordCountMap = new HashMap<Double, Integer>();
+			for (SurveyData surveyData : surveyDataList) {
+				if (product.getName().equals(surveyData.getProductName())) {
+					if (!wordCountMap.containsKey(surveyData.getPrice())) {
+						wordCountMap.put(surveyData.getPrice(), 0);
+					}
+					int count = wordCountMap.get(surveyData.getPrice()) + 1;
+					if (count > maxCount) {
+						maxCount = count;
+					}
+					wordCountMap.put(surveyData.getPrice(), count);
+				}
+			}
+			pricingCountPerProduct.add(wordCountMap);
+		}
+		return pricingCountPerProduct;
+	}
+	
 }
