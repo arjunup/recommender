@@ -1,11 +1,14 @@
 package com.brc.priceengine.recommender;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import com.brc.priceengine.recommender.helper.InputHelper;
+import com.brc.priceengine.recommender.helper.PriceRecommender;
+import com.brc.priceengine.recommender.helper.PriceRecommenderHelper;
+import com.brc.priceengine.recommender.model.Product;
+import com.brc.priceengine.recommender.model.SurveyData;
 
 /**
  * 
@@ -15,54 +18,33 @@ public class App {
 	public static void main(String[] args) throws IOException {
 		System.out.println("Enter number of products followed by each product name and the product's supply and demand parameters and then enter the Surveyed data "
 				+ "that contains Product code, Competitor and Price.");
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		List<Product> productList = new ArrayList<Product>();
-		List<SurveyData> surveyDataList = new ArrayList<SurveyData>();
+		
+		InputHelper inputHelper = new InputHelper();
+		List<Product> productList = inputHelper.processProductInput();
+		List<SurveyData> surveyDataList = inputHelper.processSurveyDataInput();
 
-		try {
-			int numOfProducts = Integer.parseInt(br.readLine());
-
-			for (int i = 0; i < numOfProducts; i++) {
-				Product product = new Product();
-				String value = br.readLine();
-				String[] prodDescArray = value.split(" ");
-
-				product.setName(prodDescArray[0]);
-				product.setSupply(prodDescArray[1]);
-				product.setDemand(prodDescArray[2]);
-				productList.add(product);
-
-			}
-
-			int numofSurveyedPrices = Integer.parseInt(br.readLine());
-
-			for (int i = 0; i < numofSurveyedPrices; i++) {
-				SurveyData surveyData = new SurveyData();
-				String value = br.readLine();
-				String[] competitorInfoArray = value.split(" ");
-
-				surveyData.setProductName(competitorInfoArray[0]);
-				surveyData.setCompetitorName(competitorInfoArray[1]);
-				surveyData.setPrice(Double.parseDouble(competitorInfoArray[2]));
-				surveyDataList.add(surveyData);
-
-			}
-
-		} catch (Exception e) {
-			System.out.println("Invalid Input, please enter a valid number for both ");
-		}
-
+		PriceRecommenderHelper priceRecommenderhelper = new PriceRecommenderHelper();
+		priceRecommenderhelper.setSurveyDataList(surveyDataList);
+		priceRecommenderhelper.setProductList(productList);
+		
+		Map<String, Double> productAvgPriceMap = priceRecommenderhelper.getAvgPriceList();
+		List<SurveyData> cleanedSurveyDataList = priceRecommenderhelper.getCleanedSurveyData(productAvgPriceMap);
+		
 		PriceRecommender priceRecommender = new PriceRecommender();
-		priceRecommender.setSurveyDataList(surveyDataList);
-		priceRecommender.setProductList(productList);
-		Map<String, Double> productAvgPriceMap = priceRecommender.getAvgPriceList();
-		List<SurveyData> cleanedSurveyDataList = priceRecommender.getCleanedSurveyData(productAvgPriceMap);
 		List<Double> chosenPriceList = priceRecommender.getChosenPriceForEachProduct(productList,
 				cleanedSurveyDataList);
-		List<Double> recommendedPriceList = priceRecommender.recommendedPriceForEachProduct(chosenPriceList);
+		List<Double> recommendedPriceList = priceRecommender.recommendedPriceForEachProduct(chosenPriceList, productList);
 		char c = 'A';
+		Double zero = 0.0;
 		for (Double recommendedPrice : recommendedPriceList) {
-			System.out.println(c + " " + recommendedPrice);
+			
+			if(zero.equals(recommendedPrice)) {
+				System.out.println(c + " " + "Invalid Survey Data");
+			}else if(recommendedPrice == null ){
+				System.out.println(c + " " + "Invalid Supply/Demand parameters for Product Input data");
+			}else {
+				System.out.println(c + " " + recommendedPrice);
+			}			
 			c++;
 		}
 	}
