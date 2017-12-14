@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.brc.priceengine.recommender.helper.InputHelper;
-import com.brc.priceengine.recommender.helper.PriceRecommender;
 import com.brc.priceengine.recommender.helper.PriceRecommenderHelper;
 import com.brc.priceengine.recommender.model.Product;
 import com.brc.priceengine.recommender.model.SurveyData;
+import com.brc.priceengine.recommender.report.PriceRecommender;
 
 /**
  * 
@@ -24,11 +24,11 @@ public class App {
 		List<SurveyData> surveyDataList = inputHelper.processSurveyDataInput();
 
 		PriceRecommenderHelper priceRecommenderhelper = new PriceRecommenderHelper();
-		priceRecommenderhelper.setSurveyDataList(surveyDataList);
-		priceRecommenderhelper.setProductList(productList);
+		/*priceRecommenderhelper.setSurveyDataList(surveyDataList);
+		priceRecommenderhelper.setProductList(productList);*/
 		
-		Map<String, Double> productAvgPriceMap = priceRecommenderhelper.getAvgPriceList();
-		List<SurveyData> cleanedSurveyDataList = priceRecommenderhelper.getCleanedSurveyData(productAvgPriceMap);
+		Map<String, Double> productAvgPriceMap = priceRecommenderhelper.getProductAvgPriceMap(productList, surveyDataList);
+		List<SurveyData> cleanedSurveyDataList = priceRecommenderhelper.getCleanedSurveyData(productAvgPriceMap, surveyDataList);
 		
 		PriceRecommender priceRecommender = new PriceRecommender();
 		List<Double> chosenPriceList = priceRecommender.getChosenPriceForEachProduct(productList,

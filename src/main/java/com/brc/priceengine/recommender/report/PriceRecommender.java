@@ -1,4 +1,4 @@
-package com.brc.priceengine.recommender.helper;
+package com.brc.priceengine.recommender.report;
 
 import java.util.ArrayList;
 import java.util.Collection;
